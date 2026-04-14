@@ -139,7 +139,7 @@
           <div class="definition"><strong>Definition.</strong> Dynamic programming is a method for solving a problem by breaking it into overlapping subproblems, solving each subproblem once, and reusing those answers.</div>
           <p>The two phrases that matter are <em>overlapping subproblems</em> and <em>reusable state</em>.</p>
           <div class="intuition"><strong>Intuition.</strong> DP is not “fill in a table.” The table is only storage. The hard part is choosing a state that contains exactly the information needed to continue correctly.</div>
-          <div class="worked"><strong>Coding example: naive versus memoized Fibonacci.</strong></div>
+          <div class="worked"><strong>Example objective:</strong> Compute the nth Fibonacci number while contrasting naive recursion with memoized recursion so you can see exactly where repeated work is removed.</div>
           <pre>def fib_bad(n):
     if n <= 1:
         return n
@@ -161,7 +161,7 @@ def fib(n):
         <div class="chapter-header"><div><div class="chapter-number">Chapter 2</div><h2>The DP design loop</h2><p class="goal">Learn a repeatable process for building DP solutions.</p></div><div class="tag">Core workflow</div></div>
         <div class="section">
           <div class="summary-box"><strong>The design loop.</strong><br><br><strong>Step 1.</strong> Define the state.<br><strong>Step 2.</strong> State its meaning in one sentence.<br><strong>Step 3.</strong> Write the transition.<br><strong>Step 4.</strong> Set base cases.<br><strong>Step 5.</strong> Choose memoization or tabulation.<br><strong>Step 6.</strong> Identify the final answer state.<br><strong>Step 7.</strong> Check time and memory complexity.</div>
-          <div class="worked"><strong>Coding example: climbing stairs.</strong></div>
+          <div class="worked"><strong>Example objective:</strong> Count how many distinct ways there are to reach step <code>n</code> if you may move 1 or 2 steps at a time. This example exists to show how a clean state and recurrence emerge from a simple counting objective.</div>
           <pre>def count_ways(n):
     if n == 0:
         return 1
@@ -182,7 +182,7 @@ def fib(n):
         <div class="section">
           <div class="definition"><strong>Memoization.</strong> Top-down recursion plus caching.</div>
           <div class="definition"><strong>Tabulation.</strong> Bottom-up evaluation in an order where dependencies are already known.</div>
-          <div class="worked"><strong>Coding example: coin sums with memoization.</strong></div>
+          <div class="worked"><strong>Example objective:</strong> Count how many combinations of coin denominations sum to a target, using recursion with caching so that repeated subproblems like “ways to make the same remaining amount from the same index” are solved once.</div>
           <pre>from functools import lru_cache
 
 def count_ways(coins, target):
@@ -197,7 +197,7 @@ def count_ways(coins, target):
         return solve(i, remaining - coins[i]) + solve(i + 1, remaining)
 
     return solve(0, target)</pre>
-          <div class="worked"><strong>Coding example: the same problem with tabulation.</strong></div>
+          <div class="worked"><strong>Example objective:</strong> Solve exactly the same coin-combination counting problem bottom-up with a table, so you can compare the top-down and bottom-up views of the same state.</div>
           <pre>def count_ways_tab(coins, target):
     dp = [0] * (target + 1)
     dp[0] = 1
@@ -212,7 +212,7 @@ def count_ways(coins, target):
         <div class="chapter-header"><div><div class="chapter-number">Chapter 4</div><h2>One-dimensional DP</h2><p class="goal">Master the most common DP shape.</p></div><div class="tag">Linear states</div></div>
         <div class="section">
           <p>In one-dimensional DP, the state is indexed by one main progress variable such as position, amount, value, or length.</p>
-          <div class="worked"><strong>Coding example: minimum cost to reach the end.</strong></div>
+          <div class="worked"><strong>Example objective:</strong> Given a cost at each index, compute the minimum total cost needed to reach the final index when you may move forward by 1 or 2 steps. This example shows 1D DP for optimisation rather than counting.</div>
           <pre>def min_cost(cost):
     n = len(cost)
     dp = [0] * n
@@ -223,7 +223,7 @@ def count_ways(coins, target):
             best_prev = min(best_prev, dp[i - 2])
         dp[i] = best_prev + cost[i]
     return dp[-1]</pre>
-          <div class="worked"><strong>Coding example: longest increasing subsequence in O(n^2) DP form.</strong></div>
+          <div class="worked"><strong>Example objective:</strong> Find the length of the longest strictly increasing subsequence of an array using the classical <code>O(n^2)</code> DP recurrence. This example shows how <code>dp[i]</code> can mean “best answer ending exactly at i.”</div>
           <pre>def lis(nums):
     n = len(nums)
     dp = [1] * n
@@ -240,7 +240,7 @@ def count_ways(coins, target):
         <div class="chapter-header"><div><div class="chapter-number">Chapter 5</div><h2>Two-dimensional DP</h2><p class="goal">Track progress in two objects at once.</p></div><div class="tag">Matrix DP</div></div>
         <div class="section">
           <div class="definition"><strong>Canonical state.</strong> <code>dp[i][j]</code> often means the answer for prefixes <code>A[:i]</code> and <code>B[:j]</code>.</div>
-          <div class="worked"><strong>Coding example: longest common subsequence length.</strong></div>
+          <div class="worked"><strong>Example objective:</strong> Compute the length of the longest common subsequence shared by two strings or arrays. This is the standard prefix-versus-prefix DP template.</div>
           <pre>def lcs_length(a, b):
     n, m = len(a), len(b)
     dp = [[0] * (m + 1) for _ in range(n + 1)]
@@ -251,7 +251,7 @@ def count_ways(coins, target):
             else:
                 dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
     return dp[n][m]</pre>
-          <div class="worked"><strong>Coding example: edit distance.</strong></div>
+          <div class="worked"><strong>Example objective:</strong> Compute the minimum number of insertions, deletions, and substitutions needed to turn one string into another. This shows how the same 2D prefix structure adapts to an optimisation problem with three candidate transitions.</div>
           <pre>def edit_distance(a, b):
     n, m = len(a), len(b)
     dp = [[0] * (m + 1) for _ in range(n + 1)]
@@ -272,7 +272,7 @@ def count_ways(coins, target):
       <section class="chapter" id="ch6">
         <div class="chapter-header"><div><div class="chapter-number">Chapter 6</div><h2>Counting DP</h2><p class="goal">Count huge families of objects without double-counting.</p></div><div class="tag">Counting</div></div>
         <div class="section">
-          <div class="worked"><strong>Coding example: number of paths in a grid.</strong></div>
+          <div class="worked"><strong>Example objective:</strong> Count how many ways there are to move from the top-left corner of a grid to the bottom-right corner using only right and down moves. This is a clean counting-DP example where each state collects ways from predecessor states.</div>
           <pre>def count_paths(rows, cols):
     dp = [[0] * cols for _ in range(rows)]
     dp[0][0] = 1
@@ -283,7 +283,7 @@ def count_ways(coins, target):
             if j > 0:
                 dp[i][j] += dp[i][j - 1]
     return dp[-1][-1]</pre>
-          <div class="worked"><strong>Coding example: coin combinations.</strong></div>
+          <div class="worked"><strong>Example objective:</strong> Count how many unordered combinations of coin denominations sum to a target value. This example exists to highlight how loop order controls whether you count combinations or permutations.</div>
           <pre>def coin_combinations(coins, target):
     dp = [0] * (target + 1)
     dp[0] = 1
@@ -299,7 +299,7 @@ def count_ways(coins, target):
         <div class="chapter-header"><div><div class="chapter-number">Chapter 7</div><h2>Bitmask and state-compression DP</h2><p class="goal">Handle problems where the state must remember a chosen subset.</p></div><div class="tag">State compression</div></div>
         <div class="section">
           <div class="definition"><strong>Bitmask DP.</strong> Use an integer to represent a subset of items or satisfied requirements.</div>
-          <div class="worked"><strong>Coding example: travelling-style subset DP skeleton.</strong></div>
+          <div class="worked"><strong>Example objective:</strong> Compute the minimum cost to visit every node exactly once when the state must remember both the current endpoint and the set of already visited nodes. This is the canonical subset-DP pattern behind travelling-style problems.</div>
           <pre>def tsp_like(dist):
     n = len(dist)
     INF = 10**18
@@ -315,7 +315,7 @@ def count_ways(coins, target):
                 nxt = mask | (1 << v)
                 dp[nxt][v] = min(dp[nxt][v], dp[mask][u] + dist[u][v])
     return min(dp[(1 << n) - 1])</pre>
-          <div class="worked"><strong>Coding example: counting subsets with sum constraint.</strong></div>
+          <div class="worked"><strong>Example objective:</strong> Count how many subsets have total sum exactly equal to a target. This example is deliberately simple so the role of the bitmask itself is easy to see before moving to more advanced compressed-state problems.</div>
           <pre>def subset_count(nums, target):
     n = len(nums)
     total = 0
@@ -334,7 +334,7 @@ def count_ways(coins, target):
       <section class="chapter" id="ch8">
         <div class="chapter-header"><div><div class="chapter-number">Chapter 8</div><h2>Interval, partition, and tree DP</h2><p class="goal">Learn the structural DP families that appear once prefix states are not enough.</p></div><div class="tag">Structural DP</div></div>
         <div class="section">
-          <div class="worked"><strong>Coding example: interval DP skeleton.</strong></div>
+          <div class="worked"><strong>Example objective:</strong> Solve a problem on every subarray <code>[l, r]</code> by trying every split point inside that interval. This is the standard interval-DP skeleton for merge, partition, and game-on-subarray problems.</div>
           <pre>def interval_dp(arr):
     n = len(arr)
     dp = [[0] * n for _ in range(n)]
@@ -346,7 +346,7 @@ def count_ways(coins, target):
                 best = min(best, dp[l][k] + dp[k + 1][r])
             dp[l][r] = best
     return dp[0][n - 1]</pre>
-          <div class="worked"><strong>Coding example: tree DP for subtree sizes.</strong></div>
+          <div class="worked"><strong>Example objective:</strong> Compute the size of every subtree in a rooted tree. This is the simplest tree-DP example and exists to make the child-to-parent aggregation pattern explicit before more difficult subtree states.</div>
           <pre>def subtree_sizes(graph, root=0):
     n = len(graph)
     size = [0] * n
@@ -369,7 +369,7 @@ def count_ways(coins, target):
         <div class="chapter-header"><div><div class="chapter-number">Chapter 9</div><h2>Hybrid state-space DP</h2><p class="goal">Recognise when the right state should be explored as a graph.</p></div><div class="tag">DP + graph view</div></div>
         <div class="section">
           <p>Sometimes the state is correct, but the best implementation is Dijkstra or BFS over states rather than a plain nested-loop tabulation.</p>
-          <div class="worked"><strong>Coding example: shortest path over (node, mask) states.</strong></div>
+          <div class="worked"><strong>Example objective:</strong> Find the shortest path when the state must track both your current node and which requirements or item types have already been collected. This is the key idea behind many <code>(node, mask)</code> shortest-path-plus-DP problems.</div>
           <pre>import heapq
 
 def shortest_with_mask(graph, start, start_mask, full_mask):
@@ -414,7 +414,7 @@ def shortest_with_mask(graph, start, start_mask, full_mask):
         <div class="chapter-header"><div><div class="chapter-number">Chapter 11</div><h2>HackerRank pattern library</h2><p class="goal">Map common HackerRank dynamic-programming challenge styles to the right modelling template.</p></div><div class="tag">Problem targeting</div></div>
         <div class="section">
           <div class="summary-box"><strong>Pattern map.</strong><br><br><strong>Sequence comparison.</strong> Use 2D prefix DP.<br><strong>Reformulate then solve a small 1D cost problem.</strong> Often appears disguised as an operations problem.<br><strong>Independent dimensions plus combinatorial merge.</strong> Solve one dimension first and then combine.<br><strong>Node plus subset state.</strong> Use <code>(node, mask)</code> or a similar compressed state.</div>
-          <div class="worked"><strong>Coding example: template for reconstructing one LCS.</strong></div>
+          <div class="worked"><strong>Example objective:</strong> Recover one actual longest common subsequence, not just its length, by backtracking through the completed DP table. This example exists to show how to reconstruct a solution object after computing DP values.</div>
           <pre>def lcs_string(a, b):
     n, m = len(a), len(b)
     dp = [[0] * (m + 1) for _ in range(n + 1)]
@@ -446,7 +446,7 @@ def shortest_with_mask(graph, start, start_mask, full_mask):
           <div class="definition"><strong>Space compression.</strong> Keep only the rows or layers that are still needed.</div>
           <div class="definition"><strong>Precomputation.</strong> Prefix sums, combinations, valid-mask lists, and helper arrays can make slow transitions feasible.</div>
           <div class="definition"><strong>Transition pruning.</strong> Reduce candidate predecessors when structure allows it.</div>
-          <div class="worked"><strong>Coding example: 2D to 1D compression for LCS length row updates.</strong></div>
+          <div class="worked"><strong>Example objective:</strong> Compute LCS length while reducing memory from a full 2D table to one row at a time. This example exists to show that optimisation changes storage strategy without changing the mathematical state meaning.</div>
           <pre>def lcs_length_compressed(a, b):
     n, m = len(a), len(b)
     prev = [0] * (m + 1)
