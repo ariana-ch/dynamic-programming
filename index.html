@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dynamic Programming for Competitive Programming</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121a31;
+      --panel-2: #182341;
+      --text: #e9eefc;
+      --muted: #aab6d3;
+      --accent: #7aa2ff;
+      --accent-2: #8ef0d0;
+      --gold: #ffd166;
+      --danger: #ff7b7b;
+      --border: rgba(255,255,255,0.1);
+      --shadow: 0 20px 50px rgba(0,0,0,0.35);
+      --radius: 20px;
+      --maxw: 1200px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(122,162,255,0.16), transparent 30%),
+        radial-gradient(circle at top right, rgba(142,240,208,0.10), transparent 26%),
+        linear-gradient(180deg, #08101d 0%, #0b1020 100%);
+      line-height: 1.65;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .shell { width: min(var(--maxw), calc(100% - 32px)); margin: 0 auto; }
+    .hero { padding: 56px 0 28px; }
+    .hero-card, .nav-card, .chapter, .footer-card, .stats, .callout { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadow); }
+    .hero-grid { display: grid; grid-template-columns: 1.45fr 0.8fr; gap: 30px; padding: 38px; }
+    h1 { font-size: clamp(2rem, 4vw, 3.35rem); line-height: 1.08; margin: 0 0 14px; letter-spacing: -0.03em; }
+    .lead { font-size: 1.08rem; color: var(--muted); max-width: 68ch; margin: 0 0 20px; }
+    .hero-side { display: grid; gap: 14px; }
+    .stats, .callout { padding: 18px; }
+    .stat { display: flex; justify-content: space-between; gap: 10px; font-size: 0.96rem; }
+    .layout { display: grid; grid-template-columns: 300px 1fr; gap: 24px; align-items: start; padding-bottom: 48px; }
+    .sidebar { position: sticky; top: 18px; }
+    .nav-card { padding: 16px; }
+    .nav-card h2 { margin: 0 0 10px; font-size: 1rem; color: var(--gold); }
+    .nav-card ol { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: var(--muted); }
+    .progress-wrap { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+    .progress-bar { width: 100%; height: 10px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; }
+    .progress-bar > div { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width 0.2s ease; }
+    .content { display: grid; gap: 22px; }
+    .chapter { padding: 26px; scroll-margin-top: 20px; background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03)); }
+    .chapter-header { display: flex; gap: 16px; align-items: start; justify-content: space-between; flex-wrap: wrap; margin-bottom: 16px; }
+    .chapter-number { color: var(--gold); font-size: 0.94rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+    .chapter h2 { margin: 0; font-size: clamp(1.45rem, 2.6vw, 2rem); letter-spacing: -0.02em; }
+    .goal, .small { color: var(--muted); }
+    .tag { padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: var(--muted); font-size: 0.9rem; white-space: nowrap; }
+    .section { margin-top: 18px; }
+    .section h3 { margin: 0 0 10px; font-size: 1.08rem; color: var(--accent-2); }
+    .definition, .intuition, .worked, .pitfall, .exercise, .summary-box, .quiz-box { border-radius: 16px; padding: 16px 18px; border: 1px solid var(--border); margin: 12px 0; }
+    .definition { background: rgba(122,162,255,0.08); }
+    .intuition { background: rgba(142,240,208,0.08); }
+    .worked { background: rgba(255,209,102,0.08); }
+    .pitfall { background: rgba(255,123,123,0.08); }
+    .summary-box, .exercise, .quiz-box { background: rgba(255,255,255,0.045); }
+    pre { margin: 10px 0 0; padding: 14px; border-radius: 14px; overflow: auto; background: #091121; border: 1px solid var(--border); color: #dce6ff; font-size: 0.94rem; }
+    code { color: #dce6ff; }
+    .exercise h4 { margin: 0 0 8px; font-size: 1rem; color: var(--gold); }
+    details { margin-top: 10px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); overflow: hidden; }
+    summary { list-style: none; cursor: pointer; padding: 12px 14px; font-weight: 600; background: rgba(255,255,255,0.03); }
+    summary::-webkit-details-marker { display: none; }
+    .answer { padding: 14px; color: var(--muted); }
+    .formula { padding: 12px 14px; border-left: 4px solid var(--accent); background: rgba(255,255,255,0.04); overflow: auto; }
+    .quiz-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+    .quiz-row input[type="text"], .quiz-row input[type="number"] { background: #091121; color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; min-width: 120px; font: inherit; }
+    .quiz-row button { background: linear-gradient(90deg, var(--accent), #6dc7ff); color: #06101f; border: none; border-radius: 10px; padding: 10px 14px; font-weight: 700; cursor: pointer; }
+    .feedback { min-height: 1.4em; font-weight: 600; }
+    .feedback.correct { color: var(--accent-2); }
+    .feedback.incorrect { color: var(--danger); }
+    .checklist { display: grid; gap: 10px; margin-top: 12px; }
+    .checklist label { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; color: var(--muted); }
+    input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); }
+    .footer-card { padding: 24px; margin: 8px 0 48px; }
+    @media (max-width: 980px) { .hero-grid, .layout { grid-template-columns: 1fr; } .sidebar { position: static; } }
+  </style>
+</head>
+<body>
+  <div class="shell hero">
+    <section class="hero-card">
+      <div class="hero-grid">
+        <div>
+          <h1>Dynamic Programming for Competitive Programming</h1>
+          <p class="lead">A structured course designed to teach dynamic programming from first principles, with enough depth to tackle medium and hard HackerRank-style problems involving sequences, subsets, intervals, trees, grids, digit constraints, state compression, and hybrid shortest-path state spaces.</p>
+        </div>
+        <div class="hero-side">
+          <div class="stats">
+            <div class="stat"><strong>Core chapters</strong><span>10 + 2 advanced modules</span></div>
+            <div class="stat"><strong>Focus</strong><span>Dynamic programming</span></div>
+            <div class="stat"><strong>Core tools</strong><span>States, transitions, recurrence, memoization, tabulation</span></div>
+            <div class="stat"><strong>Level</strong><span>Beginner to hard contest</span></div>
+          </div>
+          <div class="callout"><strong>How to use this page</strong><p class="small">This course starts with the meaning of dynamic programming, then builds a library of state patterns and design habits. The later modules connect those ideas to the kinds of harder HackerRank problems that use one-dimensional DP, LCS-style DP, bitmask/state compression, tree DP, interval DP, and multi-parameter state spaces such as Grid Walking. HackerRank’s dynamic-programming area includes classics such as The Longest Common Subsequence, Equal, and Grid Walking. ([hackerrank.com](https://www.hackerrank.com/challenges/dynamic-programming-classics-the-longest-common-subsequence/forum/comments/35546?utm_source=chatgpt.com))</p></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="shell layout">
+    <aside class="sidebar">
+      <nav class="nav-card">
+        <h2>Course Map</h2>
+        <ol>
+          <li><a href="#ch1">What dynamic programming is</a></li>
+          <li><a href="#ch2">The DP design loop</a></li>
+          <li><a href="#ch3">Memoization and tabulation</a></li>
+          <li><a href="#ch4">One-dimensional DP and decision chains</a></li>
+          <li><a href="#ch5">Two-dimensional DP and sequence alignment</a></li>
+          <li><a href="#ch6">Counting DP and combinatorial transitions</a></li>
+          <li><a href="#ch7">Subset, bitmask, and profile states</a></li>
+          <li><a href="#ch8">Interval, partition, and tree DP</a></li>
+          <li><a href="#ch9">State-space shortest paths and hybrid DP</a></li>
+          <li><a href="#ch10">Recognition checklist and debugging</a></li>
+          <li><a href="#mod2">Module 2: HackerRank pattern library</a></li>
+          <li><a href="#mod3">Module 3: Optimisation techniques</a></li>
+        </ol>
+        <div class="progress-wrap">
+          <div class="small" id="progressText">Reading progress: 0%</div>
+          <div class="progress-bar"><div id="progressFill"></div></div>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <section class="chapter" id="ch1">
+        <div class="chapter-header"><div><div class="chapter-number">Chapter 1</div><h2>What dynamic programming actually is</h2><p class="goal">Start with the right mental model before memorising any recurrence.</p></div><div class="tag">Foundation</div></div>
+        <div class="section">
+          <div class="definition"><strong>Definition.</strong> Dynamic programming is a method for solving a problem by breaking it into overlapping subproblems, solving each subproblem once, and reusing those answers.</div>
+          <p>The two phrases that matter are <em>overlapping subproblems</em> and <em>reusable state</em>. If solving one smaller piece gives information you will need again, you are in dynamic-programming territory.</p>
+          <div class="intuition"><strong>Intuition.</strong> DP is not “use a table.” A table is only the storage. The real idea is to choose a state that contains exactly the information needed to continue optimally or count correctly.</div>
+          <div class="worked"><strong>Example.</strong> In Fibonacci numbers, the value of <code>F(n)</code> depends on <code>F(n-1)</code> and <code>F(n-2)</code>. If you recurse naively, you recompute the same quantities many times. DP avoids that waste.</div>
+        </div>
+        <div class="section">
+          <div class="pitfall">Do not call every recursive solution “dynamic programming.” If you recurse without caching, and the same subproblem appears repeatedly, you have not yet done the dynamic-programming part.</div>
+        </div>
+        <div class="section">
+          <h3>Exercises</h3>
+          <div class="exercise"><h4>Exercise 1.1</h4><p>What are the two structural conditions that make DP promising?</p><details><summary>Show model answer</summary><div class="answer">Overlapping subproblems and a state description whose answers can be reused.</div></details></div>
+          <div class="exercise"><h4>Exercise 1.2</h4><p>Why is plain recursive Fibonacci inefficient?</p><details><summary>Show model answer</summary><div class="answer">Because the same subproblems such as <code>F(3)</code> and <code>F(4)</code> get recomputed many times.</div></details></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="ch2">
+        <div class="chapter-header"><div><div class="chapter-number">Chapter 2</div><h2>The DP design loop</h2><p class="goal">Learn a repeatable process for constructing DP solutions.</p></div><div class="tag">Core workflow</div></div>
+        <div class="section">
+          <div class="summary-box"><strong>The DP design loop.</strong><br><br><strong>Step 1.</strong> Define the state.<br><strong>Step 2.</strong> Define the meaning of the state in one sentence.<br><strong>Step 3.</strong> Write the recurrence or transition.<br><strong>Step 4.</strong> Set base cases.<br><strong>Step 5.</strong> Choose evaluation order or memoization strategy.<br><strong>Step 6.</strong> Identify the final answer state.<br><strong>Step 7.</strong> Check complexity and possible compression.</div>
+          <div class="definition"><strong>State.</strong> A state is the minimal collection of variables needed to describe a subproblem completely.</div>
+          <div class="worked"><strong>Example.</strong> For climbing stairs with steps of size 1 or 2, the state can be <code>dp[i]</code> = number of ways to reach step <code>i</code>. Then <code>dp[i] = dp[i-1] + dp[i-2]</code>.</div>
+        </div>
+        <div class="section">
+          <div class="pitfall">Many DP failures come from a vague state meaning. If you cannot finish the sentence “<code>dp[i][j]</code> means ...”, your recurrence is probably not trustworthy yet.</div>
+        </div>
+        <div class="section">
+          <h3>Exercises</h3>
+          <div class="exercise"><h4>Exercise 2.1</h4><p>For minimum cost to reach index <code>i</code> in an array, what could <code>dp[i]</code> mean?</p><details><summary>Show model answer</summary><div class="answer"><code>dp[i]</code> can mean the minimum total cost needed to arrive at index <code>i</code>.</div></details></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="ch3">
+        <div class="chapter-header"><div><div class="chapter-number">Chapter 3</div><h2>Memoization and tabulation</h2><p class="goal">Understand the two main implementation styles and when to choose each.</p></div><div class="tag">Implementation mindset</div></div>
+        <div class="section">
+          <div class="definition"><strong>Memoization.</strong> Top-down recursion plus caching.</div>
+          <div class="definition"><strong>Tabulation.</strong> Bottom-up iteration in an order that guarantees dependencies are already known.</div>
+          <div class="worked"><strong>Memoized Fibonacci.</strong></div>
+          <pre>memo = {}
+
+def fib(n):
+    if n <= 1:
+        return n
+    if n in memo:
+        return memo[n]
+    memo[n] = fib(n-1) + fib(n-2)
+    return memo[n]</pre>
+          <div class="worked"><strong>Tabulated Fibonacci.</strong></div>
+          <pre>def fib(n):
+    if n <= 1:
+        return n
+    dp = [0] * (n + 1)
+    dp[1] = 1
+    for i in range(2, n + 1):
+        dp[i] = dp[i-1] + dp[i-2]
+    return dp[n]</pre>
+          <div class="intuition"><strong>Rule of thumb.</strong> Memoization is often easier when the state graph is irregular. Tabulation is often easier to optimise and debug once the order is clear.</div>
+        </div>
+        <div class="section">
+          <h3>Exercises</h3>
+          <div class="exercise"><h4>Exercise 3.1</h4><p>Which style starts from the final question and explores only needed states: memoization or tabulation?</p><div class="quiz-box"><div class="quiz-row"><input type="text" id="ex3_1" data-answer="memoization" placeholder="Your answer" /><button type="button" onclick="checkAnswer('ex3_1')">Check</button><span class="feedback" id="ex3_1_feedback"></span></div></div><details><summary>Show model answer</summary><div class="answer">Memoization.</div></details></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="ch4">
+        <div class="chapter-header"><div><div class="chapter-number">Chapter 4</div><h2>One-dimensional DP and decision chains</h2><p class="goal">Master the simplest but most common DP shape.</p></div><div class="tag">Linear states</div></div>
+        <div class="section">
+          <p>In one-dimensional DP, the state is indexed by one main progress variable such as position, value, amount, or length.</p>
+          <div class="definition"><strong>Typical meanings.</strong> <code>dp[i]</code> may mean a minimum cost, maximum score, boolean feasibility, or number of ways.</div>
+          <div class="worked"><strong>Coin change counting.</strong> If <code>dp[s]</code> is the number of ways to form sum <code>s</code>, then the transition depends on whether order matters. That design decision changes the loop order completely.</div>
+          <div class="formula">For combinations, iterate over coin types outside and sums inside.<br>For permutations, iterate over sums outside and coin types inside.</div>
+          <div class="worked"><strong>Equal.</strong> Some HackerRank problems in the DP area are best solved by noticing a small one-dimensional cost function after reformulation rather than using a large table. Equal is a good example of this style. ([hackerrank.com](https://www.hackerrank.com/challenges/equal/forum/comments/65311?utm_source=chatgpt.com))</div>
+        </div>
+        <div class="section">
+          <div class="pitfall">A one-dimensional DP can still be wrong if the state is missing hidden information such as whether previous elements were chosen, or if the loop order accidentally reuses updated values too early.</div>
+        </div>
+        <div class="section">
+          <h3>Exercises</h3>
+          <div class="exercise"><h4>Exercise 4.1</h4><p>In a staircase problem where order matters, should the outer loop usually be over target sum or over move type?</p><div class="quiz-box"><div class="quiz-row"><input type="text" id="ex4_1" data-answer="target sum" placeholder="Your answer" /><button type="button" onclick="checkAnswer('ex4_1')">Check</button><span class="feedback" id="ex4_1_feedback"></span></div></div><details><summary>Show model answer</summary><div class="answer">Target sum. That way each state aggregates all ways to arrive there in order-sensitive fashion.</div></details></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="ch5">
+        <div class="chapter-header"><div><div class="chapter-number">Chapter 5</div><h2>Two-dimensional DP and sequence alignment</h2><p class="goal">Handle problems where progress in two objects must be tracked simultaneously.</p></div><div class="tag">Matrix DP</div></div>
+        <div class="section">
+          <div class="definition"><strong>Canonical state.</strong> <code>dp[i][j]</code> often means the answer for prefixes <code>A[:i]</code> and <code>B[:j]</code>.</div>
+          <div class="worked"><strong>LCS pattern.</strong> In longest common subsequence, if the last elements match, extend diagonally. Otherwise take the better of skipping one side. The HackerRank DP domain includes The Longest Common Subsequence, which is a classic example of this template. ([hackerrank.com](https://www.hackerrank.com/challenges/dynamic-programming-classics-the-longest-common-subsequence/forum/comments/35546?utm_source=chatgpt.com))</div>
+          <pre>if A[i-1] == B[j-1]:
+    dp[i][j] = dp[i-1][j-1] + 1
+else:
+    dp[i][j] = max(dp[i-1][j], dp[i][j-1])</pre>
+          <div class="intuition"><strong>Interpretation trick.</strong> Prefix-based states are powerful because deleting the last character cleanly reduces the problem size.</div>
+          <div class="worked"><strong>Variants.</strong> Edit distance, longest common substring, shortest common supersequence, and alignment-scoring problems all live near this template.</div>
+        </div>
+        <div class="section">
+          <h3>Exercises</h3>
+          <div class="exercise"><h4>Exercise 5.1</h4><p>In prefix DP for LCS, what does <code>dp[0][j]</code> equal?</p><div class="quiz-box"><div class="quiz-row"><input type="number" id="ex5_1" data-answer="0" placeholder="Your answer" /><button type="button" onclick="checkAnswer('ex5_1')">Check</button><span class="feedback" id="ex5_1_feedback"></span></div></div><details><summary>Show model answer</summary><div class="answer">Zero, because one sequence is empty.</div></details></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="ch6">
+        <div class="chapter-header"><div><div class="chapter-number">Chapter 6</div><h2>Counting DP and combinatorial transitions</h2><p class="goal">Learn to count huge families of objects without double-counting or missing cases.</p></div><div class="tag">Counting</div></div>
+        <div class="section">
+          <p>Many hard DP problems are counting problems modulo a prime. In these questions, correctness often depends more on the state meaning and loop order than on algebra.</p>
+          <div class="definition"><strong>Typical state meanings.</strong> Number of ways to form a sum, number of paths to a cell, number of sequences of length <code>i</code> with some property, or number of ways after processing the first <code>i</code> items.</div>
+          <div class="worked"><strong>Grid Walking.</strong> A common hard pattern is to solve one dimension first, then combine dimensions with another DP plus binomial coefficients. Grid Walking is a representative example in HackerRank’s dynamic-programming area. ([hackerrank.com](https://www.hackerrank.com/challenges/grid-walking/forum/comments/60580?utm_source=chatgpt.com))</div>
+          <div class="intuition"><strong>Design lesson.</strong> When the full state seems too large, ask whether one coordinate or one component can be solved independently and then composed.</div>
+        </div>
+        <div class="section">
+          <div class="pitfall">Counting DP often fails due to overcounting. Always ask whether two different transition paths represent genuinely different objects or the same object described twice.</div>
+        </div>
+        <div class="section">
+          <h3>Exercises</h3>
+          <div class="exercise"><h4>Exercise 6.1</h4><p>When counting combinations of coins, why do we usually iterate over coin types first?</p><details><summary>Show model answer</summary><div class="answer">Because it prevents different orders of the same multiset of coins from being counted multiple times.</div></details></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="ch7">
+        <div class="chapter-header"><div><div class="chapter-number">Chapter 7</div><h2>Subset, bitmask, and profile states</h2><p class="goal">Handle problems where the state must remember a set of acquired items or visited choices.</p></div><div class="tag">State compression</div></div>
+        <div class="section">
+          <div class="definition"><strong>Bitmask DP.</strong> Use a binary integer to represent a subset, where bit <code>b</code> indicates whether item <code>b</code> is already included.</div>
+          <div class="worked"><strong>Canonical state.</strong> <code>dp[mask][i]</code> can mean the best value after selecting the subset <code>mask</code> and ending at item <code>i</code>.</div>
+          <div class="worked"><strong>Hybrid graph-state pattern.</strong> Some problems are solved by shortest paths over states like <code>(node, mask)</code>, where <code>mask</code> records acquired types. HackerRank has examples where the right solution is effectively a graph search over such compressed states rather than a plain rectangular table. Discussion around Synchronous Shopping highlights exactly this pattern. ([hackerrank.com](https://www.hackerrank.com/challenges/synchronous-shopping/forum/comments/521824?utm_source=chatgpt.com))</div>
+          <div class="intuition"><strong>When to think bitmask.</strong> The moment the problem says “collect a subset of k things,” “visit selected items,” or “remember which features are already satisfied,” you should test whether <code>2^k</code> is small enough.</div>
+        </div>
+        <div class="section">
+          <h3>Exercises</h3>
+          <div class="exercise"><h4>Exercise 7.1</h4><p>If <code>k = 10</code> item types, how many masks are there?</p><div class="quiz-box"><div class="quiz-row"><input type="number" id="ex7_1" data-answer="1024" placeholder="Your answer" /><button type="button" onclick="checkAnswer('ex7_1')">Check</button><span class="feedback" id="ex7_1_feedback"></span></div></div><details><summary>Show model answer</summary><div class="answer">There are <code>2^10 = 1024</code> masks.</div></details></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="ch8">
+        <div class="chapter-header"><div><div class="chapter-number">Chapter 8</div><h2>Interval, partition, and tree DP</h2><p class="goal">Learn the high-value patterns that appear once simple prefix states are no longer enough.</p></div><div class="tag">Structural DP</div></div>
+        <div class="section">
+          <div class="definition"><strong>Interval DP.</strong> States describe subarrays or substrings such as <code>dp[l][r]</code>.</div>
+          <div class="definition"><strong>Partition DP.</strong> States describe the best value after splitting the first <code>i</code> items into some number of groups.</div>
+          <div class="definition"><strong>Tree DP.</strong> States describe answers for subtrees, often with one or more conditions on the parent-child relation.</div>
+          <div class="worked"><strong>Interval example.</strong> If combining interval <code>[l, r]</code> depends on trying every split point <code>k</code>, then the transition often looks like <code>dp[l][r] = min/max over k of dp[l][k] + dp[k+1][r] + merge_cost</code>.</div>
+          <div class="worked"><strong>Tree example.</strong> Define a subtree state, write how child information combines, and be explicit about whether the parent is selected, constrained, or absent.</div>
+          <div class="pitfall">Structural DP usually fails when the state ignores one small but crucial condition, such as whether the boundary has already been matched, whether a parent is chosen, or whether a split count is fixed.</div>
+        </div>
+        <div class="section">
+          <h3>Exercises</h3>
+          <div class="exercise"><h4>Exercise 8.1</h4><p>What is the most common second loop in interval DP after interval length?</p><details><summary>Show model answer</summary><div class="answer">A split point loop over <code>k</code> inside the interval.</div></details></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="ch9">
+        <div class="chapter-header"><div><div class="chapter-number">Chapter 9</div><h2>State-space shortest paths and hybrid DP</h2><p class="goal">Recognise when the right state exists but should be explored with Dijkstra, BFS, or DAG relaxation rather than a plain table scan.</p></div><div class="tag">DP + graph view</div></div>
+        <div class="section">
+          <p>Some problems have a perfectly valid DP state, but the transition graph is sparse or irregular. Then the best implementation is often a graph search over states rather than nested loops.</p>
+          <div class="definition"><strong>State-graph view.</strong> Treat each DP state as a node and each valid transition as an edge.</div>
+          <div class="worked"><strong>Examples.</strong> Shortest path with extra resources, node plus bitmask states, and “best answer reaching this configuration” problems often fit this pattern. The discussion of Synchronous Shopping uses a <code>lowestTravelTime[node][mask]</code> state exactly in this spirit. ([hackerrank.com](https://www.hackerrank.com/challenges/synchronous-shopping/forum/comments/521824?utm_source=chatgpt.com))</div>
+          <div class="intuition"><strong>Decision test.</strong> If your DP table feels right but the natural evaluation order is unclear, ask whether the states form a graph that should be explored by a shortest-path algorithm.</div>
+        </div>
+      </section>
+
+      <section class="chapter" id="ch10">
+        <div class="chapter-header"><div><div class="chapter-number">Chapter 10</div><h2>Recognition checklist and debugging</h2><p class="goal">Build the instincts that let you spot a DP problem and repair a broken solution.</p></div><div class="tag">Pattern recognition</div></div>
+        <div class="section">
+          <div class="summary-box"><strong>Recognition checklist.</strong>
+            <div class="checklist">
+              <label><input type="checkbox" /> The problem asks for optimum, feasibility, or count over structured choices</label>
+              <label><input type="checkbox" /> A naive recursive formulation repeats the same subproblems</label>
+              <label><input type="checkbox" /> Progress can be measured by one or more indices, masks, or subtree roots</label>
+              <label><input type="checkbox" /> The answer for a large object can be built from answers on smaller objects</label>
+              <label><input type="checkbox" /> A transition rule can be written once the state is defined</label>
+            </div>
+          </div>
+          <div class="worked"><strong>Debugging checklist.</strong> State meaning, base cases, transition correctness, loop order, modulo placement, impossible states, and memory compression safety.</div>
+          <div class="pitfall">If the answer is close but wrong, suspect one of three things first: an off-by-one in prefixes, double-counting due to loop order, or a state that forgot one necessary condition.</div>
+        </div>
+      </section>
+
+      <section class="chapter" id="mod2">
+        <div class="chapter-header"><div><div class="chapter-number">Module 2</div><h2>HackerRank pattern library</h2><p class="goal">Map common HackerRank dynamic-programming challenge styles to the right modelling template.</p></div><div class="tag">Problem targeting</div></div>
+        <div class="section">
+          <div class="summary-box"><strong>Pattern map.</strong><br><br><strong>Sequence comparison.</strong> Use 2D prefix DP. Representative classic: The Longest Common Subsequence. ([hackerrank.com](https://www.hackerrank.com/challenges/dynamic-programming-classics-the-longest-common-subsequence/forum/comments/35546?utm_source=chatgpt.com))<br><br><strong>Reformulate then solve a tiny 1D cost problem.</strong> Representative example: Equal. ([hackerrank.com](https://www.hackerrank.com/challenges/equal/forum/comments/65311?utm_source=chatgpt.com))<br><br><strong>Independent dimensions plus combinatorial merge.</strong> Representative hard pattern: Grid Walking. ([hackerrank.com](https://www.hackerrank.com/challenges/grid-walking/forum/comments/60580?utm_source=chatgpt.com))<br><br><strong>Node plus subset state.</strong> Representative hybrid state pattern: Synchronous Shopping style reasoning. ([hackerrank.com](https://www.hackerrank.com/challenges/synchronous-shopping/forum/comments/521824?utm_source=chatgpt.com))</div>
+          <p>The point is not to memorise these named problems. The point is to recognise the underlying state shape as early as possible.</p>
+        </div>
+        <div class="section">
+          <h3>Chapter M2.1 — Sequence DP family</h3>
+          <p>When the input is two strings or arrays and the question is about common structure, editing, matching, or alignment, begin with a prefix-versus-prefix state and ask whether diagonal transitions matter.</p>
+        </div>
+        <div class="section">
+          <h3>Chapter M2.2 — Counting with dimensions, sums, or coordinates</h3>
+          <p>When several coordinates interact but still decompose partially, solve one coordinate family first and then compose them. Grid Walking is the canonical “decompose one dimension first, then merge with combinations” pattern. ([hackerrank.com](https://www.hackerrank.com/challenges/grid-walking/forum/comments/60580?utm_source=chatgpt.com))</p>
+        </div>
+        <div class="section">
+          <h3>Chapter M2.3 — Resource and subset states</h3>
+          <p>When the problem says “collect all types,” “satisfy all categories,” or “remember what has already been obtained,” test <code>(location, mask)</code> or <code>(index, mask)</code> states immediately.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="mod3">
+        <div class="chapter-header"><div><div class="chapter-number">Module 3</div><h2>Optimisation techniques</h2><p class="goal">Prepare for the difference between a correct recurrence and a solution that actually passes.</p></div><div class="tag">Advanced practice</div></div>
+        <div class="section">
+          <div class="definition"><strong>Space compression.</strong> If a state depends only on the previous row, previous layer, or nearby values, reduce memory by keeping only what is needed.</div>
+          <div class="definition"><strong>Transition pruning.</strong> Reduce candidate predecessors by monotonicity, sorting, or problem-specific structure.</div>
+          <div class="definition"><strong>Precomputation.</strong> Prefix sums, combination tables, bit counts, and valid-mask lists can turn a slow transition into a feasible one.</div>
+          <div class="worked"><strong>Mindset.</strong> Many hard DP problems are not conceptually harder than medium ones. They simply require better state compression, precomputed helpers, or a more careful order of evaluation.</div>
+        </div>
+        <div class="section">
+          <h3>Exercises</h3>
+          <div class="exercise"><h4>Exercise M3.1</h4><p>If <code>dp[i][j]</code> depends only on row <code>i-1</code>, can you usually compress memory from <code>O(nm)</code> to <code>O(m)</code>?</p><div class="quiz-box"><div class="quiz-row"><input type="text" id="m3_1" data-answer="yes" placeholder="yes/no" /><button type="button" onclick="checkAnswer('m3_1')">Check</button><span class="feedback" id="m3_1_feedback"></span></div></div><details><summary>Show model answer</summary><div class="answer">Yes, provided you do not overwrite values that are still needed later in the current update order.</div></details></div>
+        </div>
+      </section>
+
+      <section class="footer-card">
+        <h2 style="margin-top:0">What this course is designed to cover</h2>
+        <p class="small">This page is intended to give you enough conceptual coverage to approach medium and hard dynamic-programming problems of the kinds represented in HackerRank’s algorithms dynamic-programming area: sequence DP, reformulated 1D cost DP, multidimensional counting DP, subset/state-compression DP, and hybrid state-space shortest-path models. The specific examples cited here include The Longest Common Subsequence, Equal, Grid Walking, and discussion of node-plus-mask state patterns. ([hackerrank.com](https://www.hackerrank.com/challenges/dynamic-programming-classics-the-longest-common-subsequence/forum/comments/35546?utm_source=chatgpt.com))</p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    function normalizeAnswer(value) {
+      return String(value).trim().toLowerCase();
+    }
+
+    function checkAnswer(inputId) {
+      const input = document.getElementById(inputId);
+      const feedback = document.getElementById(inputId + '_feedback');
+      if (!input || !feedback) return;
+      const expected = normalizeAnswer(input.dataset.answer || '');
+      const actual = normalizeAnswer(input.value);
+      if (actual === '') {
+        feedback.textContent = 'Enter an answer first.';
+        feedback.className = 'feedback incorrect';
+        return;
+      }
+      if (actual === expected) {
+        feedback.textContent = 'Correct';
+        feedback.className = 'feedback correct';
+      } else {
+        feedback.textContent = 'Try again';
+        feedback.className = 'feedback incorrect';
+      }
+    }
+
+    const sections = Array.from(document.querySelectorAll('.chapter'));
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    function updateProgress() {
+      const scrollMid = window.scrollY + window.innerHeight * 0.35;
+      let count = 0;
+      sections.forEach(sec => { if (scrollMid >= sec.offsetTop) count += 1; });
+      const pct = Math.max(0, Math.min(100, Math.round((count / sections.length) * 100)));
+      if (progressFill) progressFill.style.width = pct + '%';
+      if (progressText) progressText.textContent = 'Reading progress: ' + pct + '%';
+    }
+    window.addEventListener('scroll', updateProgress, { passive: true });
+    window.addEventListener('load', updateProgress);
+  </script>
+</body>
+</html>
